@@ -98,3 +98,38 @@ def get_llm(model_id):
             "X-Title":"OmniChatAI Persistent RAG"
         }
     )
+def get_response(user_query,chat_history,model_id,vectorstore):
+    context=""
+    if vectorstore is not None:
+        retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":3})
+        relevant_docs=retriever.invoke(user_query)
+        context="\n\n".join([doc.page_content for doc in relevant_docs])
+
+    template="""
+    You are OmniChat AI, an intelligent, modern, and adaptive AI assistant developed by Mohiuddin Mahady.
+
+        Guidelines:
+        1. Prioritize using the Document Context below to answer the user's question accurately.
+        2. If you don't know or context doesn't contain the answer, state it clearly. Do not make up facts.
+        3. Keep your tone professional, helpful, and respect the language style of the user.
+
+        Document Context:
+        {context}
+
+        Conversation History:
+        {chat_history}
+
+        User Question:
+        {user_query}
+
+    """
+    prompt=ChatPromptTemplate.from_template(template)
+    llm=get_llm(model_id)
+    chain=prompt|llm|StrOutputParser()
+    output=chain.stream({
+        "context":context,
+        "chat_history":chat_history,
+        "user_query":user_query
+    })
+
+    return output
