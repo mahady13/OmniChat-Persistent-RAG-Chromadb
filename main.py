@@ -98,14 +98,16 @@ def get_llm(model_id):
             "X-Title":"OmniChatAI Persistent RAG"
         }
     )
-def get_response(user_query,chat_history,model_id,vectorstore):
-    context=""
-    if vectorstore is not None:
-        retriever=vectorstore.as_retriever(search_type="similarity",search_kwargs={"k":3})
-        relevant_docs=retriever.invoke(user_query)
-        context="\n\n".join([doc.page_content for doc in relevant_docs])
 
-    template="""
+
+def get_response(user_query, chat_history, model_id, vectorstore):
+    context = ""
+    if vectorstore is not None:
+        retriever = vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+        relevant_docs = retriever.invoke(user_query)
+        context = "\n\n".join([doc.page_content for doc in relevant_docs])
+
+    template = """
     You are OmniChat AI, an intelligent, modern, and adaptive AI assistant developed by Mohiuddin Mahady.
 
         Guidelines:
@@ -123,13 +125,25 @@ def get_response(user_query,chat_history,model_id,vectorstore):
         {user_query}
 
     """
-    prompt=ChatPromptTemplate.from_template(template)
-    llm=get_llm(model_id)
-    chain=prompt|llm|StrOutputParser()
-    output=chain.stream({
-        "context":context,
-        "chat_history":chat_history,
-        "user_query":user_query
+    prompt = ChatPromptTemplate.from_template(template)
+    llm = get_llm(model_id)
+    chain = prompt | llm | StrOutputParser()
+    output = chain.stream({
+        "context": context,
+        "chat_history": chat_history,
+        "user_query": user_query
     })
 
     return output
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history=[
+        AIMessage(content="Hello! I am an AI assistant powered by OpenRouter & LangChain. How can I assist you today?")
+    ]
+for message in st.session_state.chat_history:
+    if isinstance(message,AIMessage):
+        with st.chat_message("assistant"):
+            st.write(message.content)
+
+    elif isinstance(message,HumanMessage):
+        with st.chat_message("user"):
+            st.write(message.content)
