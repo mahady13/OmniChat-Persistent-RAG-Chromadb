@@ -52,3 +52,36 @@ def load_vectorstore():
     return None
 vectorstore=load_vectorstore()
 
+st.set_page_config(page_title="OmniChat AI with persistent RAG",page_icon="💬",layout="centered")
+
+st.title("OmniChat AI with persistent RAG")
+
+with st.sidebar:
+    st.title("Model Configuration")
+    selected_model=st.selectbox(label="Select a model",options=available_models.keys(),placeholder=available_models['Ling 3 Flash'])
+    model_id=available_models[selected_model]
+    if st.button("Clear Conversation"):
+        st.session_state.chat_history = [
+            AIMessage(
+                content="Hello! I am an AI assistant powered by OpenRouter & LangChain. How can I assist you today?")
+        ]
+        st.rerun()
+    if vectorstore is not None:
+        st.success("🎯 Chroma DB: Connected & Active (Assets Loaded)")
+    else:
+        st.warning("⚠️ No PDFs found in 'assets/' folder. Running in normal chat mode.")
+
+    st.markdown("---")
+    st.header("Developer Information")
+    st.markdown("""
+            **Mohiuddin Mahady**  
+            *BSc in CSE*  
+            Mymensingh Engineering College  
+            *(Affiliated with Dhaka University)*
+            """)
+    col3, col4 = st.columns([1, 1])
+    with col3:
+        st.link_button("LinkedIn", "https://www.linkedin.com/in/mohiuddin-mahady/", use_container_width=True)
+    with col4:
+        st.link_button("Github", 'https://www.github.com/mahady13', use_container_width=True)
+
