@@ -150,12 +150,13 @@ for message in st.session_state.chat_history:
 user_query=st.chat_input("Type Your Message Here")
 
 if user_query:
-    st.session_state.chat_history.append(HumanMessage(content=user_query))
+
     with st.chat_message("user"):
         st.markdown(user_query)
 
     try:
         response = st.write_stream(get_response(user_query, st.session_state.chat_history, model_id, vectorstore))
+        st.session_state.chat_history.append(HumanMessage(content=user_query))
         st.session_state.chat_history.append(AIMessage(content=response))
     except Exception as e:
         st.error("⚠️ Selected free model is temporarily rate-limited or busy. Please switch to another model from the sidebar!")
