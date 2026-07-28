@@ -94,7 +94,7 @@ def get_llm(model_id):
         max_tokens=1000,
         temperature=0.3,
         default_headers={
-            "HTTP-Referer":"https://localhost:8501/",
+            "HTTP-Referer":"https://omnichat-persistent-rag-chromadb-mohiuddin-mahady.streamlit.app/",
             "X-Title":"OmniChatAI Persistent RAG"
         }
     )
