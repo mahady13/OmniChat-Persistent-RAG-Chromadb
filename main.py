@@ -23,3 +23,32 @@ available_models={
     "OpenAI: gpt-oss-20b": "openai/gpt-oss-20b:free",
     "Auto Free Router": "openrouter/free",
 }
+
+embedding=HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+@st.cache_resource
+def load_vectorstore():
+    assets_directory="./assets"
+    persist_directory='./chromadb'
+
+    if os.path.exists(persist_directory) and os.listdir(persist_directory):
+        vectorstore=Chroma(persist_directory=persist_directory,embedding_function=embedding)
+        return vectorstore
+    if os.path.exists(assets_directory) and os.listdir(assets_directory):
+        loader=PyPDFDirectoryLoader(assets_directory)
+        document=loader.load()
+
+        splitter=RecursiveCharacterTextSplitter(
+            chunk_size=600,
+            chunk_overlap=200
+        )
+        split_text=splitter.split_documents(document)
+
+        vectorstore=Chroma.from_documents(
+            documents=split_text,
+            persist_directory=persist_directory,
+            embedding=embedding
+            )
+        return vectorstore
+    return None
+vectorstore=load_vectorstore()
+
