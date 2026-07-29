@@ -158,6 +158,5 @@ if user_query:
         response = st.write_stream(get_response(user_query, st.session_state.chat_history, model_id, vectorstore))
         st.session_state.chat_history.append(AIMessage(content=response))
     except Exception as e:
-        st.error("⚠️ Selected free model is temporarily rate-limited or busy. Please switch to another model from the sidebar!")
-
+        st.exception(e)
 
